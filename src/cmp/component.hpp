@@ -1,12 +1,25 @@
 #pragma once
 #include <cstdint>
 
-struct Component
+struct ComponentBase{
+ protected:
+   static inline uint32_t nextTypeID = 0;
+};
+
+
+template <typename T>
+struct Component : ComponentBase 
 {
-   explicit Component(uint32_t eid) 
-   : entity_id(eid) {}
-private:
+ private:
    uint32_t entity_id = 0;
-   uint32_t component_id = nextCmpId++; 
-   inline static uint32_t nextCmpId = 0;
+
+ public:
+   Component(uint32_t eid) : entity_id(eid) {}
+
+   uint32_t getEntityID() const {return entity_id;}
+
+   static uint32_t getCmpTypeID(){
+      static uint32_t typeID = ++nextTypeID;
+      return typeID;
+   }
 };

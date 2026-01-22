@@ -2,7 +2,7 @@
 #include "cmp/component.hpp"
 #include <cstdint>
 
-struct PhysicsCmp: Component
+struct PhysicsCmp: Component<PhysicsCmp>
 {
    explicit PhysicsCmp(uint32_t eid)
       : Component(eid) {}

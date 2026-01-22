@@ -2,9 +2,9 @@
 #include "cmp/component.hpp"
 #include <cstdint>
 
-struct InputComponent: Component
+struct InputCmp: Component<InputCmp>
 {
-   explicit InputComponent(uint32_t eid)
+   explicit InputCmp(uint32_t eid)
       : Component(eid) {}
    
 };
