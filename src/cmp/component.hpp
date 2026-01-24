@@ -6,7 +6,6 @@ struct ComponentBase{
    static inline uint32_t nextTypeID = 0;
 };
 
-
 template <typename T>
 struct Component : ComponentBase 
 {

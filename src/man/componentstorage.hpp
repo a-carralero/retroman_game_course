@@ -5,6 +5,7 @@
 #include <memory>
 #include "util/typealiases.hpp"
 #include "cmp/component.hpp"
+#include <iostream>
 
 struct CmpVecBase{
    virtual ~CmpVecBase() = default;
@@ -25,7 +26,7 @@ struct ComponentStorage
    template <typename Cmp_t>
    std::vector<Cmp_t>& createCmpVector()
    {
-      auto uptr = std::make_unique<CmpVecBase<Cmp_t>>();
+      auto uptr = std::make_unique<CmpVec<Cmp_t>>();
       auto &v = uptr->components;
       v.reserve(init_size);
       uint32_t typeID = Cmp_t::getCmpTypeID();
@@ -46,10 +47,26 @@ public:
       uint32_t typeID = Cmp_t::getCmpTypeID();
       auto it = cmp_vectors.find(typeID);
       if (it != cmp_vectors.end()){
-         auto* aux = dynamic_cast<CmpVec<Cmp_t>*>((it->second).get())
+         auto* aux = dynamic_cast<CmpVec<Cmp_t>*>((it->second).get());
          vptr = &(aux->components);
       } else {
          vptr = &createCmpVector<Cmp_t>();
+      }
+      return *vptr;
+   }
+
+   template <typename Cmp_t>
+   const std::vector<Cmp_t>& getCmpVector() const
+   {
+      std::vector<Cmp_t>* vptr = nullptr;
+      uint32_t typeID = Cmp_t::getCmpTypeID();
+      auto it = cmp_vectors.find(typeID);
+      if (it != cmp_vectors.end()){
+         auto* aux = dynamic_cast<CmpVec<Cmp_t>*>((it->second).get());
+         vptr = &(aux->components);
+      } else {
+         std::cerr << "No se encontró el vector de componentes\n";
+         std::terminate();
       }
       return *vptr;
    }

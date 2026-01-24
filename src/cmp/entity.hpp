@@ -15,7 +15,7 @@ struct Entity
    uint32_t getEntityID() const {return entity_id; }
 
    template <typename Cmp_t>
-   Cmp_t* getComponent(){
+   const Cmp_t* getComponent() const {
       uint32_t typeID = Cmp_t::getCmpTypeID();
       auto it = m_components.find(typeID);
       if (it != m_components.end())

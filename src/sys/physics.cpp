@@ -1,9 +1,10 @@
 #include "sys/physics.hpp"
-#include "util/gamecontext.hpp"
+#include "man/entitymanager.hpp"
+#include "cmp/physics.hpp"
 
-bool PhysicsSystem::update(GameContext& g) const {
+bool PhysicsSystem::update(EntityManager& g) const {
 
-   for(auto& phy: g.getPhysicsComponents()){
+   for(auto& phy: g.getComponents<PhysicsCmp>()){
       phy.x += phy.vx;
       phy.y += phy.vy;
    }

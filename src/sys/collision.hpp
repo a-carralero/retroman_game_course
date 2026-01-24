@@ -1,11 +1,10 @@
 #pragma once
-
 #include <cstdint>
 
-struct GameContext;
+struct EntityManager;
 
-struct CollisionSystem {
-
-   bool update(GameContext& g) const;
+struct CollisionSystem 
+{
+   bool update(EntityManager& g) const;
 };
 

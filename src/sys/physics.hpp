@@ -2,10 +2,10 @@
 
 #include <cstdint>
 
-struct GameContext;
+struct EntityManager;
 
-struct PhysicsSystem {
-
-   bool update(GameContext& g) const;
+struct PhysicsSystem 
+{
+   bool update(EntityManager& g) const;
 };
 
