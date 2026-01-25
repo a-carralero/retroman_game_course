@@ -52,13 +52,11 @@ void RenderSystem::drawAllEntities(const std::vector<RenderCmp>& render_cmps,
    }
 }
 
-bool RenderSystem::update(const EntityManager& g)
+void RenderSystem::update(const EntityManager& g)
 {
    uint32_t* screen = m_screen.get();
    uint32_t size = m_w*m_h;
    std::fill(screen, screen+size, kR);
    drawAllEntities(g.getComponents<RenderCmp>(), g);
    ptc_update(screen);
-
-   return !ptc_process_events();
 }

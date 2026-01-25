@@ -23,7 +23,7 @@ struct RenderSystem
  public:
    RenderSystem(uint32_t w, uint32_t h);
    ~RenderSystem();
-   bool update(const EntityManager& g);
+   void update(const EntityManager& g);
    void drawAllEntities(const std::vector<RenderCmp>& render_cmps,
                         const EntityManager& g);
 };

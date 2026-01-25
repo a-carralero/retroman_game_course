@@ -3,6 +3,7 @@
 #include <vector>
 #include <string_view>
 #include <iostream>
+#include <utility>
 #include "man/componentstorage.hpp"
 #include "cmp/entity.hpp"
 
@@ -55,4 +56,12 @@ struct EntityManager
       const Entity& e = getEntityByID(c.getEntityID());
       return e.getComponent<C1_t>();
    }
+
+   template <typename C1_t, typename C2_t>
+   C1_t* getRequiredCmpFromCmp(const C2_t& c) {
+      return const_cast<C1_t*>(
+         std::as_const(*this).getRequiredCmpFromCmp<C1_t, C2_t>(c)
+      );
+   }
+
 };
