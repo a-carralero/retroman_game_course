@@ -15,7 +15,9 @@ struct RenderSystem
    std::unique_ptr<uint32_t[]> m_screen {nullptr};
    uint32_t* getScreenXY(uint32_t x, uint32_t y);
    void drawEntity(const RenderCmp& rn, const PhysicsCmp& phy);
-
+   void drawAllEntities(const EntityManager& g);
+   void drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy);
+   
    static constexpr uint32_t kR = 0x00FF0000;
    static constexpr uint32_t kG = 0x0000FF00;
    static constexpr uint32_t kB = 0x000000FF;
@@ -24,7 +26,7 @@ struct RenderSystem
    RenderSystem(uint32_t w, uint32_t h);
    ~RenderSystem();
    void update(const EntityManager& g);
-   void drawAllEntities(const std::vector<RenderCmp>& render_cmps,
-                        const EntityManager& g);
+
+
 };
 

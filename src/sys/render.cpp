@@ -41,13 +41,12 @@ void RenderSystem::drawEntity(const RenderCmp& rn, const PhysicsCmp& phy)
    }
 }
 
-void RenderSystem::drawAllEntities(const std::vector<RenderCmp>& render_cmps,
-                                   const EntityManager& g) 
+void RenderSystem::drawAllEntities(const EntityManager& g) 
 {
-   for(const auto& rn: render_cmps){
+   for(const auto& rn: g.getComponents<RenderCmp>()){
       auto* phy = g.getRequiredCmpFromCmp<PhysicsCmp>(rn);
       if (phy){
-         drawEntity(rn, *phy);
+         drawClippedSprite(rn, *phy);
       }
    }
 }
@@ -57,6 +56,52 @@ void RenderSystem::update(const EntityManager& g)
    uint32_t* screen = m_screen.get();
    uint32_t size = m_w*m_h;
    std::fill(screen, screen+size, kR);
-   drawAllEntities(g.getComponents<RenderCmp>(), g);
+   drawAllEntities(g);
    ptc_update(screen);
+}
+
+void RenderSystem::drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy)
+{
+   uint32_t x = phy.x;
+   uint32_t y = phy.y;
+   uint32_t w = rn.w;
+   uint32_t h = rn.h;
+
+   // Clipping
+   uint32_t left_off = 0;
+   uint32_t up_off = 0;
+
+   // Horizontal Clipping Rules
+   if (x >= m_w){                 // Left Clipping  
+      left_off = - x;
+      if (left_off >= w) return;  // Nothing to draw, sprite is out screen (left or right)
+      x = 0;
+      w = w - left_off;
+   }
+   else if ( x + w > m_w){        // Right Clipping
+      w = m_w - x;
+   }
+   // Vertical Clipping Rules
+   if (y >= m_h) {               // Up Clipping
+      up_off = -y;
+      if (up_off >= h) return;   // Nothig to draw
+      y = 0;
+      h = h - up_off;
+   }
+   else if (y + h > m_h){        // Down Clipping
+      h = m_h - y;
+   }
+
+   // Draw Sprite
+   uint32_t* screen = getScreenXY(x, y);
+   const uint32_t* spr = rn.sprite.get() + up_off*rn.w + left_off;
+   while (h--){
+      for (uint32_t i = 0; i < w; ++i) {
+            // draw only if transperency != 0
+            if ( spr[i] & 0xFF000000 ) 
+                screen[i] = spr[i];
+      }
+      spr += rn.w;
+      screen += m_w;
+   }
 }
