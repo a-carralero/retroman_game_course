@@ -4,9 +4,6 @@
 #include "cmp/physics.hpp"
 #include <iostream>
 
-extern void createBlade(EntityManager& em, uint32_t x, uint32_t y,
-                                           int32_t vx, int32_t vy);
-
 void SpawnSystem::update(EntityManager& g) const 
 {
    using namespace std::chrono;
@@ -19,7 +16,7 @@ void SpawnSystem::update(EntityManager& g) const
       if (spw.to_be_spawned > 0) {
          auto passed = now - spw.last_spawn_time;
          if (passed > spw.spawn_interval){
-            createBlade(g, phy->x, phy->y, -1, 1);
+            spw.spawnMethod(phy->x, phy->y, -1, 0);
             spw.last_spawn_time = now;
             --spw.to_be_spawned;
          }

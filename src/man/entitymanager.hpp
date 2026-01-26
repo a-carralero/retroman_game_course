@@ -41,13 +41,27 @@ struct EntityManager
       return cmp_storage.createComponent<Cmp_t>(eid);
    }
 
+   template <typename Cmp_t>
+   Cmp_t& addComponent(Entity& e){
+      uint32_t eid = e.getEntityID();
+      const Cmp_t* cmp_ptr = e.getComponent<Cmp_t>();
+      if (cmp_ptr){
+         std::cerr << "EntityManager::addComponent() : El componente a añadir ya existe\n";
+         std::terminate();      
+      }
+      Cmp_t& cmp = createComponent<Cmp_t>(eid);
+      e.linkComponent(cmp);
+      return cmp;
+   }
+
+
    const Entity& getEntityByID(uint32_t eid) const
    {
       for (const Entity& e : entities){
          if (e.getEntityID() == eid)
             return e;      
       }
-      std::cerr << "Ese ID no corresponde con ningún Entity\n";
+      std::cerr << "EntityManager::getEntityByID() : Ese ID no corresponde con ningún Entity\n";
       std::terminate();      
    }
 
