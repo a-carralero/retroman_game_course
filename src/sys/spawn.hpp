@@ -3,7 +3,7 @@
 
 struct EntityManager;
 
-struct SpawnSystem 
+struct SpawnSys 
 {
    void update(EntityManager& g) const;
 };

@@ -4,7 +4,7 @@
 
 struct EntityManager;
 
-struct PhysicsSystem 
+struct PhysicsSys 
 {
    bool update(EntityManager& g) const;
 };

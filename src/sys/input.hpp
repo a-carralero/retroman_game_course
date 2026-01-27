@@ -4,12 +4,12 @@
 
 struct EntityManager;
 
-struct InputSystem 
+struct InputSys 
 {
  private:
    static inline Keyboard keyboard{};
  public:
-   InputSystem();
+   InputSys();
    bool update(EntityManager& g) const;
    static void keypress(KeySym);
    static void keyrelease(KeySym);

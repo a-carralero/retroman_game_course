@@ -7,6 +7,7 @@
 #include "cmp/input.hpp"
 #include "cmp/collider.hpp"
 #include "cmp/spawner.hpp"
+#include "cmp/health.hpp"
 
 struct EntityManager;
 
@@ -26,12 +27,17 @@ struct Factory{
    void createSpawner(uint32_t x, uint32_t y, Callback_t cb)
    {
       Entity& e = em.createEntity();
-      auto& ph = em.addComponent<PhysicsCmp>(e);
+      auto& rn  = em.addComponent<RenderCmp>(e);
+      auto& ph  = em.addComponent<PhysicsCmp>(e);
+      auto& cl  = em.addComponent<ColliderCmp>(e);
+      auto& spw = em.addComponent<SpawnerCmp>(e);
+      
+      rn.loadFromFile("pngs/spawner.png");
       ph.x = x; ph.y = y;
       ph.vx = 0; ph.vy = 1;
-      auto& rn = em.addComponent<RenderCmp>(e);
-      rn.loadFromFile("pngs/spawner.png");
-      auto& spw = em.addComponent<SpawnerCmp>(e);
+      cl.boxRoot.box.xR = rn.w;
+      cl.boxRoot.box.yD = rn.h;
+      cl.mask = 0x00; // Collide with nothing!
       spw.to_be_spawned = 2;
       spw.spawnMethod = cb;
    }

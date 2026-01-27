@@ -8,12 +8,19 @@ LIBS    := $(LIB_DIR)/picoPNG/libpicopng.a $(LIB_DIR)/tinyPTC/libtinyptc.a -lX11
 INCDIRS := -I$(SRC_DIR) -I$(LIB_DIR)
 
 CFLAGS:= -Wall -Wextra -pedantic $(INCDIRS)
+LINKFLAGS:=
+
+ifdef SANITIZER
+	CFLAGS += -fsanitize=address -fno-omit-frame-pointer
+	LINKFLAGS:= -fsanitize=address -fno-omit-frame-pointer
+endif
+
 ifdef RELEASE
 	CFLAGS += -O3
 else
 	CFLAGS += -g
 endif
-CXXFLAGS  := $(CFLAGS) -std=c++20
+CXXFLAGS  := $(CFLAGS) -std=c++17
 
 SRCS := $(sort $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -o -name "*.c" \)))
 OBJS := $(patsubst $(SRC_DIR)%.cpp,$(BUILD_DIR)%.o,$(SRCS))
@@ -34,7 +41,7 @@ all: clean $(APP)
 
 $(APP) : $(OBJS)
 	$(call print_blue,Linking $(APP))
-	$(CXX) $(OBJS) -o $(APP) $(LIBS)
+	$(CXX) $(OBJS) -o $(APP) $(LIBS) $(LINKFLAGS)
 
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)

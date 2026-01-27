@@ -6,20 +6,20 @@ extern "C"{
    #include "tinyPTC/src/tinyptc.h"
 }
 
-void InputSystem::keypress(KeySym k){
+void InputSys::keypress(KeySym k){
    keyboard.keyPressed(k);
 }
 
-void InputSystem::keyrelease(KeySym k){
+void InputSys::keyrelease(KeySym k){
    keyboard.keyRelease(k);
 }
 
-InputSystem::InputSystem(){
+InputSys::InputSys(){
    ptc_set_on_keypress(keypress);
    ptc_set_on_keyrelease(keyrelease);
 }
 
-bool InputSystem::update(EntityManager& g) const
+bool InputSys::update(EntityManager& g) const
 {
    if (ptc_process_events()) return false;
 

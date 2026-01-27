@@ -4,7 +4,7 @@
 #include "cmp/physics.hpp"
 #include <iostream>
 
-void SpawnSystem::update(EntityManager& g) const 
+void SpawnSys::update(EntityManager& g) const 
 {
    using namespace std::chrono;
    auto now = steady_clock::now();
