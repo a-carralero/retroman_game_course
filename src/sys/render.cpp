@@ -33,7 +33,7 @@ uint32_t* RenderSys::getScreenXY(uint32_t x, uint32_t y) const {
 void RenderSys::drawEntity(const RenderCmp& rn, const PhysicsCmp& phy)
 {
    uint32_t* screen = getScreenXY(phy.x, phy.y);
-   const uint32_t* spr = rn.sprite.get();
+   const uint32_t* spr = rn.sprite.data();
    for (uint32_t y=0; y< rn.h; ++y){
       std::memcpy(screen, spr, rn.w*sizeof(uint32_t));
       screen += m_w;
@@ -99,7 +99,7 @@ void RenderSys::drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy)
 
    // Draw Sprite
    uint32_t* screen = getScreenXY(x, y);
-   const uint32_t* spr = rn.sprite.get() + up_off*rn.w + left_off;
+   const uint32_t* spr = rn.sprite.data() + up_off*rn.w + left_off;
    while (h--){
       for (uint32_t i = 0; i < w; ++i) {
             // draw only if transperency != 0

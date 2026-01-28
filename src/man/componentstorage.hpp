@@ -9,11 +9,36 @@
 
 struct CmpVecBase{
    virtual ~CmpVecBase() = default;
+   virtual ComponentBase& deleteCmpByEntID(uint32_t eid) = 0;
 };
 
 template <typename Cmp_t>
-struct CmpVec : CmpVecBase {
+struct CmpVec : CmpVecBase 
+{
    std::vector<Cmp_t> components;
+
+   ComponentBase& deleteCmpByEntID(uint32_t eid) override 
+   {
+      for(auto it = components.begin(); it!=components.end(); ++it)
+      {
+         auto& cmp = *it;
+         if (cmp.getEntityID() == eid)
+         {
+            if (it != components.end() -1 )  // si no soy el último
+            {
+               *it = components.back();      // copiamos el último en esa posición
+            }
+            components.pop_back();          // borramos el último componente que ahora está por duplicado
+
+            std::cout << "Removing Component [EID: "<<eid 
+                                        <<", CMPID: "<<cmp.getCmpTypeID()<<"]\n";
+
+            return *it; // devolvemos el componente que copiamos haciendo upcast para actuailzar los punteros de Entity
+         }
+      }
+      std::cerr << "Error deleteCmpByEntID() -> No se encuentra el componente\n";
+      std::terminate();
+   }
 };
 
 struct ComponentStorage 
@@ -76,6 +101,20 @@ public:
    {
       auto& v = getCmpVector<Cmp_t>();
       return v.emplace_back(eid);
+   }
+
+   ComponentBase& destroyComponent(uint32_t type_id, uint32_t eid)
+   {
+      auto it = cmp_vectors.find(type_id);
+      if (it != cmp_vectors.end())
+      {
+         CmpVecBase& vec = *(it->second);
+         return vec.deleteCmpByEntID(eid);
+      } 
+      else {
+         std::cerr << "No se encontró el vector de componentes a borrar\n";
+         std::terminate();
+      }
    }
 
    ComponentStorage(const ComponentStorage& ) = delete;

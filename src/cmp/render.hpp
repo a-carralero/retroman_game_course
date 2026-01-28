@@ -7,12 +7,14 @@
 struct RenderCmp: Component<RenderCmp>
 {
    uint32_t w = 0, h = 0;
-   std::unique_ptr<uint32_t[]> sprite;
+   std::vector<uint32_t> sprite;
 
    explicit RenderCmp(uint32_t eid)
       : Component(eid) {}
    
    void loadFromFile(const std::string_view filename);
+   
+ private:
    auto loadPNGFileIntoVector(const std::string_view filename);
    void initSpriteFromABGRData(const std::vector<unsigned char>& pixels);
 };

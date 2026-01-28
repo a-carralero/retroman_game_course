@@ -13,6 +13,13 @@ struct Entity
 
  public:
    uint32_t getEntityID() const {return entity_id; }
+   
+   auto cmpsBegin(){
+      return m_components.begin();
+   }
+   auto cmpsEnd(){
+      return m_components.end();
+   }
 
    template <typename Cmp_t>
    const Cmp_t* getComponent() const {
@@ -30,5 +37,12 @@ struct Entity
       m_components[typeID] =  &cmp;
    }
 
+   void updateCmpPtr(uint32_t cid, ComponentBase* cmp)
+   {
+      auto it = m_components.find(cid);
+      if (it != m_components.end()){
+         it->second = cmp;
+      }
+   }
 
 };

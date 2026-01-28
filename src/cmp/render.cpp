@@ -20,8 +20,8 @@ auto RenderCmp::loadPNGFileIntoVector(const std::string_view filename)
 
 void RenderCmp::initSpriteFromABGRData(const std::vector<unsigned char>& pixels)
 {
-   sprite = std::make_unique<uint32_t[]>(pixels.size() / sizeof(uint32_t));
-   uint32_t* spr = sprite.get();
+   sprite.resize(pixels.size() / sizeof(uint32_t));
+   uint32_t* spr = sprite.data();
    for (auto p = pixels.begin(); p != pixels.end(); p+=4){
       uint32_t pixel = 
          static_cast<uint32_t>(*(p  )) << 16 |

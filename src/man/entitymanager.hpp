@@ -65,6 +65,12 @@ struct EntityManager
       std::terminate();      
    }
 
+   Entity& getEntityByID(uint32_t eid){
+      return const_cast<Entity&>(
+         std::as_const(*this).getEntityByID(eid)
+      );
+   }
+
    template <typename C1_t, typename C2_t>
    const C1_t* getRequiredCmpFromCmp(const C2_t& c) const {
       const Entity& e = getEntityByID(c.getEntityID());
@@ -76,6 +82,32 @@ struct EntityManager
       return const_cast<C1_t*>(
          std::as_const(*this).getRequiredCmpFromCmp<C1_t, C2_t>(c)
       );
+   }
+
+   auto getEntityIteratorByID(uint32_t eid){
+      for (auto it = entities.begin(); it!=entities.end(); ++it){
+         if (it->getEntityID() == eid)
+            return it;
+      }
+      std::cerr << "EntityManager::getEntityIteratorByID() : Ese ID no corresponde con ningún Entity\n";
+      std::terminate(); 
+
+   }
+
+   void destroyEntityByID(uint32_t eid)
+   {
+      auto e_it = getEntityIteratorByID(eid);
+      Entity& e = *e_it;
+      std::cout << "Deleting Entity: "<<eid<<"\n";
+
+      for(auto it = e.cmpsBegin(); it!=e.cmpsEnd(); ++it)
+      {
+         uint32_t type_id = it->first;
+         ComponentBase& cmp = cmp_storage.destroyComponent(type_id, eid);
+         auto& entity_to_move = getEntityByID(cmp.getEntityID());
+         entity_to_move.updateCmpPtr(type_id, &cmp);
+      }
+      entities.erase(e_it);
    }
 
 };

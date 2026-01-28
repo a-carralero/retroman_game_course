@@ -11,6 +11,7 @@ void Factory::createPlyer ( uint32_t x, uint32_t y,
    auto& h  = em.addComponent<HealthCmp>(e);
    auto& rn = em.addComponent<RenderCmp>(e);
 
+   h.health = 5;
    ph.x = x; ph.y = y;
    ph.vx = 0; ph.vy = 0;
    rn.loadFromFile(filename);
@@ -33,10 +34,12 @@ void Factory::createBlade(uint32_t x, uint32_t y,
 {
    Entity& e = em.createEntity();
    auto& ph = em.addComponent<PhysicsCmp>(e);
+   auto& rn = em.addComponent<RenderCmp>(e);
+   auto& cl = em.addComponent<ColliderCmp>(e);
+   auto& h  = em.addComponent<HealthCmp>(e);
+
    ph.x = x; ph.y = y; 
    ph.vx = vx; ph.vy = vy;
-   auto& rn = em.addComponent<RenderCmp>(e);
    rn.loadFromFile("pngs/blade.png");
-   auto& cl = em.addComponent<ColliderCmp>(e);
    cl.boxRoot.box = {10, rn.w -10, 10, rn.h-10};
 }
