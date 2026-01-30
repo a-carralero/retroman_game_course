@@ -10,7 +10,7 @@ struct CollisionSys
    explicit CollisionSys(uint32_t w, uint32_t h)
       : m_w(w), m_h(h) {}
 
-   bool update(EntityManager& g) const;
+   void update(EntityManager& g) const;
 
  private:
 

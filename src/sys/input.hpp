@@ -10,7 +10,8 @@ struct InputSys
    static inline Keyboard keyboard{};
  public:
    InputSys();
-   bool update(EntityManager& g) const;
+   void update(EntityManager& g) const;
+   bool isKeyPressed(KeySym);
    static void keypress(KeySym);
    static void keyrelease(KeySym);
 };

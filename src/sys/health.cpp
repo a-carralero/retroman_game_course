@@ -3,7 +3,7 @@
 #include "cmp/health.hpp"
 #include "cmp/collider.hpp"
 
-bool HealthSys::update(EntityManager& g) const 
+void HealthSys::update(EntityManager& g) const 
 {
    for(auto& h: g.getComponents<HealthCmp>())
    {
@@ -16,7 +16,6 @@ bool HealthSys::update(EntityManager& g) const
          }
       }
    }
-   return true;
 }
 
 bool 

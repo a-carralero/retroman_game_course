@@ -7,7 +7,7 @@ struct BoundingBoxNode;
 
 struct HealthSys 
 {
-   bool update(EntityManager& g) const;
+   void update(EntityManager& g) const;
 
  private:
    bool leafNodeCollided(const BoundingBoxNode& bn) const;

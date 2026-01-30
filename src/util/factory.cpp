@@ -14,6 +14,7 @@ void Factory::createPlyer ( uint32_t x, uint32_t y,
    h.health = 5;
    ph.x = x; ph.y = y;
    ph.vx = 0; ph.vy = 0;
+   ph.g = 1;
    rn.loadFromFile(filename);
    cl.boxRoot.box = {0, 83, 1, 135}; 
     cl.boxRoot.childs = {
@@ -42,4 +43,18 @@ void Factory::createBlade(uint32_t x, uint32_t y,
    ph.vx = vx; ph.vy = vy;
    rn.loadFromFile("pngs/blade.png");
    cl.boxRoot.box = {10, rn.w -10, 10, rn.h-10};
+   cl.mask = ColliderCmp::L_Blades;
+}
+
+void Factory::createPlatform(uint32_t x, uint32_t y)
+{
+   Entity& e = em.createEntity();
+   auto& ph = em.addComponent<PhysicsCmp>(e);
+   auto& rn = em.addComponent<RenderCmp>(e);
+   auto& cl = em.addComponent<ColliderCmp>(e);
+
+   ph.x = x; ph.y = y; 
+   rn.loadFromFile("pngs/platform.png");
+   cl.boxRoot.box = {0, rn.w, 0, rn.h};
+   cl.mask = ColliderCmp::L_Platforms;
 }

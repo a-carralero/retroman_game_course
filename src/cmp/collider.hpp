@@ -20,6 +20,11 @@ struct ColliderCmp: Component<ColliderCmp>
    explicit ColliderCmp(uint32_t eid)
       : Component(eid) {}
    
+   enum{
+      L_NoLayer   = 0x00,   // 000
+      L_Blades    = 0x01,   // 001
+      L_Platforms = 0x02,   // 010
+   };
    uint8_t mask = 0xFF;
    BoundingBoxNode boxRoot;
 };

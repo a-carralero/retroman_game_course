@@ -6,6 +6,6 @@ struct EntityManager;
 
 struct PhysicsSys 
 {
-   bool update(EntityManager& g) const;
+   void update(EntityManager& g) const;
 };
 

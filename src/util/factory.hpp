@@ -23,6 +23,8 @@ struct Factory{
    void createBlade(uint32_t x, uint32_t y,
                     int32_t vx, int32_t vy);
   
+   void createPlatform(uint32_t x, uint32_t y);
+  
    template<typename Callback_t>
    void createSpawner(uint32_t x, uint32_t y, Callback_t cb)
    {
@@ -37,7 +39,7 @@ struct Factory{
       ph.vx = 0; ph.vy = 1;
       cl.boxRoot.box.xR = rn.w;
       cl.boxRoot.box.yD = rn.h;
-      cl.mask = 0x00; // Collide with nothing!
+      cl.mask = ColliderCmp::L_NoLayer; // Collide with nothing!
       spw.to_be_spawned = 2;
       spw.spawnMethod = cb;
    }

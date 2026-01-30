@@ -4,7 +4,7 @@
 #include <iostream>
 
 
-bool CollisionSys::update(EntityManager& g) const 
+void CollisionSys::update(EntityManager& g) const 
 {
    auto& collider_vec = g.getComponents<ColliderCmp>();
 
@@ -26,7 +26,6 @@ bool CollisionSys::update(EntityManager& g) const
          checkObjCollision(cl.boxRoot, *phy, cl2.boxRoot, *phy2);
       }
    }
-   return true;
 }
 
 void 
@@ -39,8 +38,11 @@ CollisionSys::checkBoundaries(const ColliderCmp& cl,
       phy.vx  = -phy.vx;
    }
    if (yu > m_h || yd > m_h) {
-      phy. y -=  phy.vy;
-      phy.vy  = -phy.vy;
+      phy. y -=  phy.vy; // recuperar la posición de antes de que nos saliésemos de la pantalla
+      if (phy.g == 0)
+         phy.vy  = -phy.vy;
+      else
+         phy.vy = 0;
    }
 }
 
