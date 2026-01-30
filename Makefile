@@ -7,7 +7,7 @@ LIB_DIR := libs
 LIBS    := $(LIB_DIR)/picoPNG/libpicopng.a $(LIB_DIR)/tinyPTC/libtinyptc.a -lX11
 INCDIRS := -I$(SRC_DIR) -I$(LIB_DIR)
 
-CFLAGS:= -Wall -Wextra -pedantic $(INCDIRS)
+CFLAGS:= -Wall -Wextra -pedantic $(INCDIRS) -MMD -MP
 LINKFLAGS:=
 
 ifdef SANITIZER
@@ -25,6 +25,7 @@ CXXFLAGS  := $(CFLAGS) -std=c++17
 SRCS := $(sort $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -o -name "*.c" \)))
 OBJS := $(patsubst $(SRC_DIR)%.cpp,$(BUILD_DIR)%.o,$(SRCS))
 OBJS := $(patsubst $(SRC_DIR)%.c,$(BUILD_DIR)%.o,$(OBJS))
+DEPS := $(patsubst %.o,%.d,$(OBJS))
 
 
 GREEN  := \033[0;32m
@@ -37,11 +38,12 @@ define print_blue
 	@printf "$(BLUE)%s$(RESET)\n" "$(1)"
 endef
 
-all: clean $(APP)
 
 $(APP) : $(OBJS)
 	$(call print_blue,Linking $(APP))
 	$(CXX) $(OBJS) -o $(APP) $(LIBS) $(LINKFLAGS)
+
+-include $(DEPS)
 
 $(BUILD_DIR)/%.o : $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
@@ -56,6 +58,7 @@ $(BUILD_DIR)/%.o : $(SRC_DIR)/%.c
 info:
 	$(info $(SRCS))
 	$(info $(OBJS))
+	$(info $(DEPS))
 	
 clean:
 	rm -f $(APP)
