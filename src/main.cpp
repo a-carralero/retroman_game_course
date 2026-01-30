@@ -2,6 +2,7 @@
 #include <memory>
 #include <cstdint>
 #include <chrono>
+#include <thread>
 #include "sys/render.hpp"
 #include "sys/physics.hpp"
 #include "sys/collision.hpp"
@@ -13,8 +14,8 @@
 
 constexpr uint32_t KWIDTH = 640;
 constexpr uint32_t KHEIGHT = 360;
-constexpr uint32_t FPS = 30;
-constexpr uint32_t MFPS = 1000/FPS; // Los MS que dura un FPS
+constexpr auto FPS = 60;
+constexpr auto MSPF = 1000ms/FPS; // Los MS que dura un FPS
 
 int main(){
    EntityManager EntityMan;
@@ -35,14 +36,21 @@ int main(){
    HealthSys Health;
    Render.setDebugDraw(true);
 
+   using clk = std::chrono::steady_clock;
+
+   
    while( !Input.isKeyPressed(XK_Escape))
    {
+      auto last_time = clk::now();
       Input.update(EntityMan);
       Physics.update(EntityMan);
       Collision.update(EntityMan);
       Health.update(EntityMan);
       Render.update(EntityMan);
       Spawn.update(EntityMan);
+      auto interval = clk::now() - last_time;
+      if (interval < MSPF)
+         std::this_thread::sleep_for(MSPF - interval);
    }
 
 
