@@ -9,7 +9,7 @@ struct HealthSys
 {
    void update(EntityManager& g) const;
 
- private:
+private:
    bool leafNodeCollided(const BoundingBoxNode& bn) const;
 };
 

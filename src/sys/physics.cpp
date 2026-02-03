@@ -3,20 +3,32 @@
 #include "cmp/physics.hpp"
 #include <algorithm>
 
-void PhysicsSys::update(EntityManager& g) const {
+void PhysicsSys::update(EntityManager& g) const 
+{
+   for(auto& phy: g.getComponents<PhysicsCmp>())
+   {
+      // Verify if we are still on Platform
+      if (std::abs(phy.vy) > phy.KMinVyForNotOnPlatform)
+         phy.onPlatform = false;
 
-   for(auto& phy: g.getComponents<PhysicsCmp>()){
-
-      phy.vy = phy.vy + phy.g + phy.a;
-      phy.vy = std::clamp(phy.vy, -phy.vmax, phy.vmax);
-
-      phy.x = phy.x + phy.vx;
-      phy.y = phy.y + phy.vy;
-
-      if (phy.vy < -1){
-         std::cout << "vy = " << phy.vy << "\n";
+      // Jump
+      if (phy.jumpIdx < phy.jumpTable.size()){
+         phy.vy = phy.jumpTable[phy.jumpIdx];
+         phy.jumpIdx++;
       }
-      // sólo queremos que se active durante un frame para el salto
-      phy.a = 0;  
+      // Gravity
+      phy.vy += phy.gravity;
+      phy.vy = std::clamp(phy.vy, phy.KMinVy, phy.KMaxVy);
+
+      // X Acceleration
+      phy.vx += phy.ax;
+      phy.vx = std::clamp(phy.vx, phy.KMinVx, phy.KMaxVx);
+      phy.x += phy.vx;
+      phy.y += phy.vy;
+
+      if (phy.gravity > 0 && phy.onPlatform){
+         std::cout << "vy = " << phy.vy << "\n";
+         std::cout <<"Entity ID: " << phy.getEntityID()<<"\n";
+      }
    }
 }

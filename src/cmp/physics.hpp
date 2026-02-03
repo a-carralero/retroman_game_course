@@ -1,15 +1,31 @@
 #pragma once
-#include "cmp/component.hpp"
 #include <cstdint>
+#include <array>
+#include "cmp/component.hpp"
 
 struct PhysicsCmp: Component<PhysicsCmp>
 {
    explicit PhysicsCmp(uint32_t eid)
       : Component(eid) {}
    
-   static constexpr int32_t vmax = 80;
+   static constexpr float KGravity = 0.5f;
+   static constexpr float KMinVy = -8.0f;
+   static constexpr float KMaxVy =  8.0f;
+   static constexpr float KMinVx = -4.0f;
+   static constexpr float KMaxVx =  4.0f;
+   static constexpr float KStdAx = 0.5f;
+   static constexpr float KMinVyForNotOnPlatform = 2.5f*KGravity;
+
    
-   int32_t g = 0, a = 0;
-   uint32_t x = 0, y = 0;
-   int32_t vx = 0, vy = 0;
+   float x = 0, y = 0;
+   float vx = 0, vy = 0;
+   float ax = 0;
+   float gravity = 0;
+   float friction = 1.0f;
+
+   bool onPlatform = false;
+   static constexpr std::array jumpTable {
+      -8, -8, -8, -8, -8, -8, -8, -8, -6, -6, -6, -6, -6, -6,  -4, -4, -4, -4, -4
+   };
+   uint8_t jumpIdx = jumpTable.size();
 };

@@ -11,20 +11,25 @@
 
 struct EntityManager;
 
-struct Factory{
- private:
+struct Factory
+{
+private:
    EntityManager& em;
- public:
+public:
    Factory(EntityManager& eman) : em(eman) {}
-
-   void createPlyer (uint32_t x, uint32_t y, 
+  
+   Entity& createPlyer (uint32_t x, uint32_t y, 
              const std::string_view filename);
 
    void createBlade(uint32_t x, uint32_t y,
                     int32_t vx, int32_t vy);
   
    void createPlatform(uint32_t x, uint32_t y);
-  
+
+   void createLevel1();
+    
+   void createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID);
+
    template<typename Callback_t>
    void createSpawner(uint32_t x, uint32_t y, Callback_t cb)
    {
@@ -39,9 +44,8 @@ struct Factory{
       ph.vx = 0; ph.vy = 1;
       cl.boxRoot.box.xR = rn.w;
       cl.boxRoot.box.yD = rn.h;
-      cl.mask = ColliderCmp::L_NoLayer; // Collide with nothing!
-      spw.to_be_spawned = 2;
+      cl.mask = ColliderCmp::L_Boundaries; // Collide with nothing!
+      spw.to_be_spawned = 1;
       spw.spawnMethod = cb;
    }
-
 };

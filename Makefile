@@ -10,16 +10,18 @@ INCDIRS := -I$(SRC_DIR) -I$(LIB_DIR)
 CFLAGS:= -Wall -Wextra -pedantic $(INCDIRS) -MMD -MP
 LINKFLAGS:=
 
-ifdef SANITIZER
-	CFLAGS += -fsanitize=address -fno-omit-frame-pointer
-	LINKFLAGS:= -fsanitize=address -fno-omit-frame-pointer
-endif
-
 ifdef RELEASE
 	CFLAGS += -O3
 else
-	CFLAGS += -g
+	CFLAGS += -g -O0 -fno-omit-frame-pointer
 endif
+
+ifdef SANITIZER
+	CFLAGS += -fsanitize=address 
+	LINKFLAGS:= -fsanitize=address
+endif
+
+
 CXXFLAGS  := $(CFLAGS) -std=c++17
 
 SRCS := $(sort $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -o -name "*.c" \)))

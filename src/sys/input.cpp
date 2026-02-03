@@ -35,14 +35,15 @@ void InputSys::update(EntityManager& g) const
          std::cerr << "Error InputSys::update(), el component de input no tiene asociado un component de físicas\n";
          std::terminate();
       }
-      phy->vx = 0;
-      if (keyboard.isKeyPressed(inp.key_RIGHT))phy->vx = 1;
-      if (keyboard.isKeyPressed(inp.key_LEFT)) phy->vx = -1;
-      if (keyboard.isKeyPressed(inp.key_UP)){
-         keyboard.keyRelease(inp.key_UP);
-         std::cout << "Salto\n";
-         phy->a = -20;
+      phy->ax = 0;
+      if (keyboard.isKeyPressed(inp.key_RIGHT)) phy->ax = phy->KStdAx;
+      if (keyboard.isKeyPressed(inp.key_LEFT)) phy->ax = -phy->KStdAx;
+
+      if (keyboard.isKeyPressed(inp.key_UP))
+      {
+         if (phy->onPlatform &&phy->jumpIdx == phy->jumpTable.size())
+            phy->jumpIdx = 0;
       }
-         // if (keyboard.isKeyPressed(inp.key_UP))   phy->vy = -1;
+
    }
 }

@@ -7,14 +7,25 @@ void HealthSys::update(EntityManager& g) const
 {
    for(auto& h: g.getComponents<HealthCmp>())
    {
-      const auto* cl = g.getRequiredCmpFromCmp<ColliderCmp>(h);
-      if (!cl) continue;
-      if (h.health && leafNodeCollided(cl->boxRoot)){
-         if (--h.health == 0){
+      if (h.damage){
+         if (h.damage < h.health)
+            h.health -= h.damage;
+         else {
+            h.health = 0;
             std::cout << "Entity " << h.getEntityID() << " is dead\n";
             g.destroyEntityByID(h.getEntityID());
          }
       }
+      h.damage = 0;
+
+      // const auto* cl = g.getRequiredCmpFromCmp<ColliderCmp>(h);
+      // if (!cl) continue;
+      // if (h.health && leafNodeCollided(cl->boxRoot)){
+      //    if (--h.health == 0){
+      //       std::cout << "Entity " << h.getEntityID() << " is dead\n";
+      //       g.destroyEntityByID(h.getEntityID());
+      //    }
+      // }
    }
 }
 

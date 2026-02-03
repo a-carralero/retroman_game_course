@@ -1,9 +1,11 @@
 #include <memory>
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 #include "sys/render.hpp"
 #include "man/entitymanager.hpp"
 #include "cmp/physics.hpp"
+#include "cmp/camera.hpp"
 
 /* Para librerías en C, 
 para asegurarnos que el compilador
@@ -11,7 +13,6 @@ no haga mangling de los símbolos*/
 extern "C"{ 
    #include "tinyPTC/src/tinyptc.h"
 }
-
 
 
 RenderSys::RenderSys(uint32_t w, uint32_t h) 
@@ -46,11 +47,11 @@ void RenderSys::update(const EntityManager& g)
    uint32_t* screen = m_screen.get();
    uint32_t size = m_w*m_h;
    std::fill(screen, screen+size, kWhite);
-   drawAllEntities(g);
+   drawAllCameras(g);
    ptc_update(screen);
 }
 
-void RenderSys::drawAllEntities(const EntityManager& g) 
+void RenderSys::drawAllEntities(const EntityManager& g) const
 {
    for(const auto& rn: g.getComponents<RenderCmp>()){
       auto* phy = g.getRequiredCmpFromCmp<PhysicsCmp>(rn);
@@ -65,49 +66,116 @@ void RenderSys::drawAllEntities(const EntityManager& g)
    }
 }
 
-void RenderSys::drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy)
+void RenderSys::drawAllCameras(const EntityManager& g) const 
 {
-   uint32_t x = phy.x;
-   uint32_t y = phy.y;
-   uint32_t w = rn.w;
-   uint32_t h = rn.h;
+   for(const auto& cam: g.getComponents<CameraCmp>()){
+      auto* phy = g.getRequiredCmpFromCmp<PhysicsCmp>(cam);
+      if (!phy) return;
+      m_currentCam.cam = &cam;
+      m_currentCam.phy = phy;
+      drawAllEntities(g);
+   }
+}
 
-   // Clipping
-   uint32_t left_off = 0;
-   uint32_t up_off = 0;
+void RenderSys::
+drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
+{
+   // SPRITE -> WORLD -> CAMERA -> SCREEN
+   //      +pos    -poscam    +poscamscr
 
-   // Horizontal Clipping Rules
-   if (x >= m_w){                 // Left Clipping  
-      left_off = - x;
-      if (left_off >= w) return;  // Nothing to draw, sprite is out screen (left or right)
-      x = 0;
-      w = w - left_off;
+   if (!m_currentCam.phy || !m_currentCam.cam){
+      std::cerr << "Coordenadas de camara no definidas\n";
+      std::terminate();
    }
-   else if ( x + w > m_w){        // Right Clipping
-      w = m_w - x;
-   }
-   // Vertical Clipping Rules
-   if (y >= m_h) {               // Up Clipping
-      up_off = -y;
-      if (up_off >= h) return;   // Nothig to draw
-      y = 0;
-      h = h - up_off;
-   }
-   else if (y + h > m_h){        // Down Clipping
-      h = m_h - y;
-   }
+   auto& CamScr = *m_currentCam.cam;
+   auto& CamPhy = *m_currentCam.phy;
+
+   struct {
+   BoundingBox<float> world {};
+   BoundingBox<float> camera {};
+   BoundingBox<float> crop {};
+   struct {
+      uint32_t x, y, w, h;
+      } screen;
+   } spr;
+
+   spr.world = {
+      phy.x      , 
+      phy.x +rn.w , 
+      phy.y       , 
+      phy.y +rn.h
+   }; 
+
+   spr.camera = {
+      spr.world.xL - CamPhy.x,
+      spr.world.xR - CamPhy.x,
+      spr.world.yU - CamPhy.y,
+      spr.world.yD - CamPhy.y,
+   };
+
+   // SPRITE CLIPPING
+   if (  spr.camera.xR < 0 || spr.camera.xL > CamScr.w 
+      || spr.camera.yD < 0 || spr.camera.yU > CamScr.h )
+      return;
+   
+   // SPRITE CROPPING
+   spr.crop = {
+      (spr.camera.xL < 0)         ? -spr.camera.xL : 0 ,
+      (spr.camera.xR > CamScr.w ) ? spr.camera.xR - CamScr.w  : 0 ,
+      (spr.camera.yU < 0)         ? -spr.camera.yU : 0 ,
+      (spr.camera.yD > CamScr.h)  ? spr.camera.yD - CamScr.h : 0 
+   };
+   
+   spr.screen = {
+      static_cast<uint32_t>(std::round((spr.camera.xL) + CamScr.scrx +(spr.crop.xL))),
+      static_cast<uint32_t>(std::round((spr.camera.yU) + CamScr.scry +(spr.crop.yU))),
+      static_cast<uint32_t>(std::round(rn.w - spr.crop.xL - spr.crop.xR            )),
+      static_cast<uint32_t>(std::round(rn.h - spr.crop.yU - spr.crop.yD            ))
+   };
+
+   // uint32_t x = static_cast<uint32_t>(std::round(phy.x));
+   // uint32_t y = static_cast<uint32_t>(std::round(phy.y));
+   // uint32_t w = rn.w;
+   // uint32_t h = rn.h;
+
+   // // Clipping
+   // uint32_t left_off = 0;
+   // uint32_t up_off = 0;
+
+   // // Horizontal Clipping Rules
+   // if (x >= m_w){                 // Left Clipping  
+   //    left_off = - x;
+   //    if (left_off >= w) return;  // Nothing to draw, sprite is out screen (left or right)
+   //    x = 0;
+   //    w = w - left_off;
+   // }
+   // else if ( x + w > m_w){        // Right Clipping
+   //    w = m_w - x;
+   // }
+   // // Vertical Clipping Rules
+   // if (y >= m_h) {               // Up Clipping
+   //    up_off = -y;
+   //    if (up_off >= h) return;   // Nothig to draw
+   //    y = 0;
+   //    h = h - up_off;
+   // }
+   // else if (y + h > m_h){        // Down Clipping
+   //    h = m_h - y;
+   // }
 
    // Draw Sprite
-   uint32_t* screen = getScreenXY(x, y);
-   const uint32_t* spr = rn.sprite.data() + up_off*rn.w + left_off;
-   while (h--){
-      for (uint32_t i = 0; i < w; ++i) {
+   uint32_t* screen = getScreenXY(spr.screen.x, spr.screen.y);
+   const uint32_t* sprite = rn.sprite.data() + static_cast<uint32_t>(spr.crop.yU*rn.w + spr.crop.xL);
+   while (spr.screen.h--){
+      for (uint32_t i = 0; i < spr.screen.w; ++i) {
             // draw only if transperency != 0
-            if ( spr[i] & 0xFF000000 ) 
-                screen[i] = spr[i];
+            if ( *sprite & 0xFF000000 ) 
+                *screen = *sprite;
+            sprite++;
+            screen++;
       }
-      spr += rn.w;
-      screen += m_w;
+      sprite += rn.w - spr.screen.w;
+      screen += m_w - spr.screen.w;
    }
 }
 
@@ -126,7 +194,7 @@ void RenderSys::drawBoxTree(const BoundingBoxNode& boxNode,
 }
 
 
-void RenderSys::drawBox(const BoundingBox& box, 
+void RenderSys::drawBox(const BoundingBox<uint32_t>& box, 
                            uint32_t x, uint32_t y, 
                            uint32_t color) const
 {
@@ -196,7 +264,7 @@ RenderSys::renderInScreenLine(uint32_t* screen, uint32_t len,
 }
 
 void
-RenderSys::drawFilledBox(BoundingBox box, 
+RenderSys::drawFilledBox(BoundingBox<uint32_t> box, 
                             uint32_t x, uint32_t y, 
                             uint32_t pixel  ) const
 {
@@ -227,9 +295,9 @@ RenderSys::drawFilledBox(BoundingBox box,
 }
 
 
-void
-RenderSys::renderFilledBox(uint32_t* screen, const BoundingBox& box, 
-                              uint32_t pixel) const
+void RenderSys::
+renderFilledBox(uint32_t* screen, const BoundingBox<uint32_t>& box, 
+                                             uint32_t pixel) const
 {
     const uint32_t width = box.xR - box.xL;
     uint32_t height = box.yD - box.yU;
