@@ -1,6 +1,9 @@
+#include <array>
+#include <fstream>
 #include "util/factory.hpp"
 #include "cmp/camera.hpp"
-#include <array>
+#include "picoJSON/picojson.hpp"
+
 
 Entity& Factory::createPlyer ( uint32_t x, uint32_t y, 
                    const std::string_view filename)
@@ -69,6 +72,17 @@ void Factory::createPlatform(uint32_t x, uint32_t y)
    cl.propierties = ColliderCmp::P_IsSolid;
 }
 
+void Factory::
+createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID=-1)
+{
+    Entity& e = em.createEntity();
+    auto& cam = em.addComponent<CameraCmp>(e);
+    em.addComponent<PhysicsCmp>(e);
+    cam.scrx = x; cam.scry = y;
+    cam.w = w;    cam.h = h;
+    cam.followEntityID = followEID;
+}
+
 void Factory::createLevel1()
 {
     constexpr std::array level{
@@ -89,15 +103,139 @@ void Factory::createLevel1()
     }
 }
 
-void Factory::
-createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID=-1)
+void Factory::loadLevelJson(std::string_view filepath)
 {
-    Entity& e = em.createEntity();
-    auto& cam = em.addComponent<CameraCmp>(e);
-    auto& ph = em.addComponent<PhysicsCmp>(e);
-    cam.scrx = x; cam.scry = y;
-    cam.w = w;    cam.h = h;
-    cam.followEntityID = followEID;
+   std::ifstream file(filepath.data());
+   if (!file){
+      std::cerr << "El fichero JSON no se pudo abrir\n";
+      std::terminate();
+   }
+
+   // Read JSON into Memory
+   namespace pj = picojson;
+   pj::value json;
+   file >> json;
+   std::string err {pj::get_last_error()};
+   if (!err.empty()) {
+      std::cerr << "Error al leer el JSON\n";
+      std::cerr << err << "\n";
+      std::terminate();
+   }
+   const auto& root = json.get<pj::object>();
+   const auto& h    = root.at("height").get<double>();
+   const auto& w    = root.at("width").get<double>();
+   const auto& map  = root.at("map").get<pj::array>();
+   if (map.size() != w*h){
+      std::cerr << "Map size error";
+      std::terminate();
+   }
+
+   uint32_t x = 0, y = 0;
+   for (auto& elem : map){
+      const auto& tile = static_cast<bool>(elem.get<double>());
+      if (tile) createPlatform(78*x, 77*y);
+      if (++x == w) { x=0; ++y; }
+   }
 }
+
+
+void Factory::
+json2Bin(std::string_view jsonpath, std::string_view binpath)
+{
+   // Open Json file
+   std::ifstream filejson(jsonpath.data());
+   if (!filejson){
+      std::cerr << "El fichero JSON no se pudo abrir\n"; 
+      std::terminate();
+   }
+
+   // Open Bin file
+   std::ofstream filebin (binpath.data(), std::ofstream::binary | std::ofstream::trunc);
+   if (!filebin){
+      std::cerr << "El fichero BIN no se pudo abrir para escritura\n"; 
+      std::terminate();
+   }
+
+   // Read JSON into Memory
+   namespace pj = picojson;
+   pj::value json;
+   filejson >> json;
+   std::string err {pj::get_last_error()};
+   if (!err.empty()) {
+      std::cerr << "Error al leer el JSON\n" << err << "\n";
+      std::terminate();
+   }
+
+   // Write to binary
+   const auto& root = json.get<pj::object>();
+   const auto& h    = static_cast<uint32_t>(root.at("height").get<double>());
+   const auto& w    = static_cast<uint32_t>(root.at("width").get<double>());
+   const auto& map  = root.at("map").get<pj::array>();
+
+   filebin.write(reinterpret_cast<const char*>(&w), sizeof w);
+   filebin.write(reinterpret_cast<const char*>(&h), sizeof h);
+   
+   for (auto & elem : map){
+      const auto& tile = static_cast<uint8_t>(elem.get<double>());
+      filebin.write(reinterpret_cast<const char*>(&tile), sizeof tile);
+   }
+}
+
+void Factory::loadLevelBin(std::string_view filepath)
+{
+// Open BIN file
+   std::ifstream file(filepath.data(), std::ifstream::binary);
+   if (!file){
+      std::cerr << "El fichero JSON no se pudo abrir\n"; 
+      std::terminate();
+   }
+
+   // Calculate file length
+   file.seekg(0, std::ifstream::end);
+   std::size_t length = file.tellg();
+   file.seekg(0, std::ifstream::beg);
+
+   // check minimal file size
+   if (length < 8){
+      std::cerr << " Binary file corrupt, Size to small\n";
+      std::terminate();
+   }
+
+   std::cout << "length = " << length << "\n";
+
+   // Read whole file at once
+   std::vector<char> filemem(length);
+   char* pfilemem = filemem.data();
+   file.read(pfilemem, length);
+
+   std::cout << "size vec = " << filemem.size() << "\n";
+   std::cout << "capacity vec = " << filemem.capacity() << "\n";
+
+   uint32_t w = 0, h = 0;
+   std::memcpy(&w, pfilemem, sizeof w);
+   std::memcpy(&h, pfilemem+4, sizeof h);
+
+   std::cout << "w = " << w << ", h = " << h << "\n";
+
+   if (w*h != (length - 8)){
+      std::cerr << "Baad size in BIN file level\n";
+      std::terminate();
+   }
+
+   pfilemem += 8;
+   for (uint32_t y = 0; y < h; ++y){
+      for (uint32_t x = 0; x < w; ++x){
+         if (*pfilemem) createPlatform(x*78, y*77);
+         pfilemem++;
+      }
+   }
+
+
+   
+}
+
+
+
+
 
 

@@ -31,9 +31,9 @@ void CollisionSys::update(EntityManager& g) const
          }
       }
 
-      if (phy->gravity > 0){
-         std::cout << "vy = " << phy->vy << "\n";
-      }
+      // if (phy->gravity > 0){
+      //    std::cout << "Collision: vx = " << phy->vx << "\n";
+      // }
    }
    
 }

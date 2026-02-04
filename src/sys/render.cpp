@@ -93,7 +93,7 @@ drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
    struct {
    BoundingBox<float> world {};
    BoundingBox<float> camera {};
-   BoundingBox<float> crop {};
+   BoundingBox<uint32_t> crop {};
    struct {
       uint32_t x, y, w, h;
       } screen;
@@ -120,17 +120,17 @@ drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
    
    // SPRITE CROPPING
    spr.crop = {
-      (spr.camera.xL < 0)         ? -spr.camera.xL : 0 ,
-      (spr.camera.xR > CamScr.w ) ? spr.camera.xR - CamScr.w  : 0 ,
-      (spr.camera.yU < 0)         ? -spr.camera.yU : 0 ,
-      (spr.camera.yD > CamScr.h)  ? spr.camera.yD - CamScr.h : 0 
+      static_cast<uint32_t>(std::round((spr.camera.xL < 0)         ? -spr.camera.xL : 0 )),
+      static_cast<uint32_t>(std::round((spr.camera.xR > CamScr.w ) ? spr.camera.xR - CamScr.w  : 0 )),
+      static_cast<uint32_t>(std::round((spr.camera.yU < 0)         ? -spr.camera.yU : 0 )),
+      static_cast<uint32_t>(std::round((spr.camera.yD > CamScr.h)  ? spr.camera.yD - CamScr.h : 0)) 
    };
    
    spr.screen = {
-      static_cast<uint32_t>(std::round((spr.camera.xL) + CamScr.scrx +(spr.crop.xL))),
-      static_cast<uint32_t>(std::round((spr.camera.yU) + CamScr.scry +(spr.crop.yU))),
-      static_cast<uint32_t>(std::round(rn.w - spr.crop.xL - spr.crop.xR            )),
-      static_cast<uint32_t>(std::round(rn.h - spr.crop.yU - spr.crop.yD            ))
+      static_cast<uint32_t>(std::round(spr.camera.xL + CamScr.scrx)) + spr.crop.xL,
+      static_cast<uint32_t>(std::round(spr.camera.yU + CamScr.scry)) + spr.crop.yU,
+      rn.w - spr.crop.xL - spr.crop.xR ,
+      rn.h - spr.crop.yU - spr.crop.yD        
    };
 
    // uint32_t x = static_cast<uint32_t>(std::round(phy.x));

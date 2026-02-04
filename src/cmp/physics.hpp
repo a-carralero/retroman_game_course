@@ -9,8 +9,8 @@ struct PhysicsCmp: Component<PhysicsCmp>
       : Component(eid) {}
    
    static constexpr float KGravity = 0.5f;
-   static constexpr float KMinVy = -8.0f;
-   static constexpr float KMaxVy =  8.0f;
+   static constexpr float KMinVy = -9.0f;
+   static constexpr float KMaxVy =  9.0f;
    static constexpr float KMinVx = -4.0f;
    static constexpr float KMaxVx =  4.0f;
    static constexpr float KStdAx = 0.5f;
@@ -25,7 +25,7 @@ struct PhysicsCmp: Component<PhysicsCmp>
 
    bool onPlatform = false;
    static constexpr std::array jumpTable {
-      -8, -8, -8, -8, -8, -8, -8, -8, -6, -6, -6, -6, -6, -6,  -4, -4, -4, -4, -4
+      -9, -9, -9, -9, -9, -9, -9, -9, -7, -7, -7, -7, -7, -6, -6, -6, -6, -6, -6,  -4, -4, -4, -4, -4
    };
    uint8_t jumpIdx = jumpTable.size();
 };

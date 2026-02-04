@@ -16,7 +16,6 @@ SRCS := $(sort $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -o -name "*.c" \
 OBJS := $(patsubst $(SRC_DIR)%.cpp,$(BUILD_DIR)%.o,$(SRCS))
 OBJS := $(patsubst $(SRC_DIR)%.c,$(BUILD_DIR)%.o,$(OBJS))
 
-
 GREEN  := \033[0;32m
 BLUE   := \033[0;34m
 RESET  := \033[0m

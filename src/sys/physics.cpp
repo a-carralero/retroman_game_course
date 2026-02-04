@@ -26,9 +26,10 @@ void PhysicsSys::update(EntityManager& g) const
       phy.x += phy.vx;
       phy.y += phy.vy;
 
-      if (phy.gravity > 0 && phy.onPlatform){
-         std::cout << "vy = " << phy.vy << "\n";
-         std::cout <<"Entity ID: " << phy.getEntityID()<<"\n";
-      }
+      // if (phy.gravity > 0 && phy.onPlatform){
+      //    std::cout << "Physics: vx = " << phy.vx << "\n";
+      // }
+      // if (phy.gravity > 0)
+      //    std::cout << "ax = " << phy.ax << "\n";
    }
 }

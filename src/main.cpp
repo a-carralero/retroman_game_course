@@ -23,8 +23,10 @@ int main(){
    Factory factory(EntityMan);
    Entity& player = factory.createPlyer(40, 40, "pngs/klipartz4.png");
    factory.createCamera(0,0, KWIDTH,KHEIGHT, player.getEntityID());
-   factory.createLevel1();
-   // factory.createBlade(40, 250, 1, -1);
+   // factory.createLevel1();
+   // factory.loadLevelJson("pngs/level1.json");
+   // factory.json2Bin("pngs/level1.json", "pngs/level1.bin");
+   factory.loadLevelBin("pngs/level1.bin");
    factory.createSpawner(500, 200, 
       [&factory](uint32_t x, uint32_t y, int32_t vx, int32_t vy){
          factory.createBlade(x,y,vx,vy);
