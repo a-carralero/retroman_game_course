@@ -17,6 +17,7 @@ void InputSys::keyrelease(KeySym k){
 InputSys::InputSys(){
    ptc_set_on_keypress(keypress);
    ptc_set_on_keyrelease(keyrelease);
+   keyboard.resetKeyboard();
 }
 
 bool InputSys::isKeyPressed(KeySym k){

@@ -22,3 +22,9 @@ void Keyboard::keyPressed(KeySym k){
 void Keyboard::keyRelease(KeySym k){
    getMapElement(k) = false;
 }
+
+void Keyboard::resetKeyboard(){
+   for (auto& elem: m_pressedKeys){
+      elem.second = false;
+   }
+}

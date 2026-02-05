@@ -13,6 +13,7 @@ struct Keyboard
     bool isKeyPressed(KeySym k);
     void keyPressed(KeySym k);
     void keyRelease(KeySym k);
+    void resetKeyboard();
     
 private:
     bool& getMapElement(KeySym k);

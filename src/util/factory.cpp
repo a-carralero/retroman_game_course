@@ -85,22 +85,14 @@ createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID=
 
 void Factory::createLevel1()
 {
-    constexpr std::array level{
-        0b00000000 ,
-        0b00000000 ,
-        0b00000011 ,
-        0b00000111 ,
-        0b11111111 
-    };
+   loadLevelBin("pngs/level1.bin");
+   Entity& player = createPlyer(40, 40, "pngs/klipartz4.png");
+   createCamera(0,0, 640, 360, player.getEntityID());
+   createSpawner(500, 200, 
+      [&](uint32_t x, uint32_t y, int32_t vx, int32_t vy){
+         createBlade(x,y,vx,vy);
+   });
 
-    uint32_t y = 0;
-    for (auto row: level){
-        for (uint32_t x=0; x<78*8; x+=78){
-            if (row & 0x80) createPlatform(x, y);
-            row <<= 1;
-        }
-        y +=77 + 1;
-    }
 }
 
 void Factory::loadLevelJson(std::string_view filepath)
@@ -201,21 +193,14 @@ void Factory::loadLevelBin(std::string_view filepath)
       std::terminate();
    }
 
-   std::cout << "length = " << length << "\n";
-
    // Read whole file at once
    std::vector<char> filemem(length);
    char* pfilemem = filemem.data();
    file.read(pfilemem, length);
 
-   std::cout << "size vec = " << filemem.size() << "\n";
-   std::cout << "capacity vec = " << filemem.capacity() << "\n";
-
    uint32_t w = 0, h = 0;
    std::memcpy(&w, pfilemem, sizeof w);
    std::memcpy(&h, pfilemem+4, sizeof h);
-
-   std::cout << "w = " << w << ", h = " << h << "\n";
 
    if (w*h != (length - 8)){
       std::cerr << "Baad size in BIN file level\n";
@@ -229,9 +214,6 @@ void Factory::loadLevelBin(std::string_view filepath)
          pfilemem++;
       }
    }
-
-
-   
 }
 
 
