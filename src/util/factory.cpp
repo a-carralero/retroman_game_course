@@ -83,11 +83,20 @@ createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID=
     cam.followEntityID = followEID;
 }
 
+void Factory::
+createCamera(uint32_t x, uint32_t y, uint32_t followEID=-1){
+   Entity& e = em.createEntity();
+    auto& cam = em.addComponent<CameraCmp>(e);
+    em.addComponent<PhysicsCmp>(e);
+    cam.scrx = x; cam.scry = y;
+    cam.followEntityID = followEID;
+}
+
 void Factory::createLevel1()
 {
    loadLevelBin("pngs/level1.bin");
    Entity& player = createPlyer(40, 40, "pngs/klipartz4.png");
-   createCamera(0,0, 640, 360, player.getEntityID());
+   createCamera(0,0,player.getEntityID());
    createSpawner(500, 200, 
       [&](uint32_t x, uint32_t y, int32_t vx, int32_t vy){
          createBlade(x,y,vx,vy);

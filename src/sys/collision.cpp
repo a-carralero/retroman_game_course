@@ -1,10 +1,10 @@
+#include <cmath>
+#include <iostream>
 #include "sys/collision.hpp"
 #include "man/entitymanager.hpp"
 #include "cmp/physics.hpp"
 #include "cmp/health.hpp"
-#include <cmath>
-#include <iostream>
-
+#include "util/constants.hpp"
 
 void CollisionSys::update(EntityManager& g) const 
 {
@@ -43,11 +43,11 @@ CollisionSys::checkBoundaries(const ColliderCmp& cl,
                                     PhysicsCmp& phy) const
 {
    auto [xl, xr, yu, yd] = move2WorldFrame(cl.boxRoot.box, phy.x, phy.y);
-   if (xl > m_w || xr < 0) {
+   if (xl > KWIDTH || xr < 0) {
       phy. x -=  phy.vx;
       phy.vx  = -phy.vx;
    }
-   if (yu > m_h || yd < 0) {
+   if (yu > KHEIGHT || yd < 0) {
       phy. y -=  phy.vy; // recuperar la posición de antes de que nos saliésemos de la pantalla
       if (phy.gravity == 0)
          phy.vy  = -phy.vy;

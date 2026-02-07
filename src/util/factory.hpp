@@ -32,7 +32,7 @@ public:
    void json2Bin(std::string_view jsonpath, std::string_view binpath);
    void loadLevelBin(std::string_view filepath);
    void createCamera(uint32_t x, uint32_t y, uint32_t w, uint32_t h, uint32_t followEID);
-
+   void createCamera(uint32_t x, uint32_t y, uint32_t followEID);
    template<typename Callback_t>
    void createSpawner(uint32_t x, uint32_t y, Callback_t cb)
    {

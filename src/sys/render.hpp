@@ -19,7 +19,6 @@ struct CameraWithPhysics{
 struct RenderSys 
 {   
  private:
-   const uint32_t m_w = 0, m_h = 0;
    std::unique_ptr<uint32_t[]> m_screen {nullptr};
    mutable bool m_debugDraw {false};
    mutable uint32_t m_debugColor { 0xFFFF0000 };
@@ -43,7 +42,7 @@ struct RenderSys
    static constexpr uint32_t kWhite = 0x00FFFFFF;
 
  public:
-   RenderSys(uint32_t w, uint32_t h);
+   RenderSys();
    ~RenderSys();
    void update(const EntityManager& g);
    void setDebugDraw(bool v) const      {m_debugDraw  = v;  }

@@ -12,20 +12,16 @@
 #include "util/factory.hpp"
 #include "util/timer.hpp"
 #include "man/state_base.hpp"
+#include "util/constants.hpp"
 
 
 class Game: public StateBase
 {
-   static constexpr uint32_t KWIDTH = 640;
-   static constexpr uint32_t KHEIGHT = 360;
-   static constexpr int64_t FPS = 60;
-   static constexpr int64_t USPF = 1'000'000/FPS; // Los MS que dura un FPS
-
    EntityManager EntityMan;
    Factory factory{EntityMan};
-   RenderSys Render{KWIDTH, KHEIGHT};
+   RenderSys Render;
    PhysicsSys Physics;
-   CollisionSys Collision{KWIDTH, KHEIGHT};
+   CollisionSys Collision;
    InputSys Input;
    SpawnSys Spawn;
    HealthSys Health;
@@ -50,6 +46,7 @@ public:
       timedCall("Spawn", Spawn.update(EntityMan));
       if (Input.isKeyPressed(XK_Escape)) alive = false;
       // std::cout << "[Towait] " << timer.waitUntil_us(USPF) << "\n";
+      timer.waitUntil_us(USPF);
       timer.start();
    }
 };

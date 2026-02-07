@@ -6,6 +6,8 @@
 #include "man/entitymanager.hpp"
 #include "cmp/physics.hpp"
 #include "cmp/camera.hpp"
+#include "util/constants.hpp"
+
 
 /* Para librerías en C, 
 para asegurarnos que el compilador
@@ -15,11 +17,10 @@ extern "C"{
 }
 
 
-RenderSys::RenderSys(uint32_t w, uint32_t h) 
-   : m_w(w), m_h(h),
-     m_screen (std::make_unique<uint32_t[]>(w*h))
+RenderSys::RenderSys() 
+   : m_screen (std::make_unique<uint32_t[]>(KWIDTH*KHEIGHT))
    { 
-   ptc_open("window", w, h);
+   ptc_open("window", KWIDTH, KHEIGHT);
 }
 
 RenderSys::~RenderSys(){
@@ -27,7 +28,7 @@ RenderSys::~RenderSys(){
 }
 
 uint32_t* RenderSys::getScreenXY(uint32_t x, uint32_t y) const {
-   uint32_t* screen =  m_screen.get() + x + m_w*y;
+   uint32_t* screen =  m_screen.get() + x + KWIDTH*y;
    return screen;
 }
 
@@ -37,7 +38,7 @@ void RenderSys::drawEntity(const RenderCmp& rn, const PhysicsCmp& phy)
    const uint32_t* spr = rn.sprite.data();
    for (uint32_t y=0; y< rn.h; ++y){
       std::memcpy(screen, spr, rn.w*sizeof(uint32_t));
-      screen += m_w;
+      screen += KWIDTH;
       spr += rn.w;
    }
 }
@@ -45,7 +46,7 @@ void RenderSys::drawEntity(const RenderCmp& rn, const PhysicsCmp& phy)
 void RenderSys::update(const EntityManager& g)
 {
    uint32_t* screen = m_screen.get();
-   uint32_t size = m_w*m_h;
+   uint32_t size = KWIDTH*KHEIGHT;
    std::fill(screen, screen+size, kWhite);
    drawAllCameras(g);
    ptc_update(screen);
@@ -143,24 +144,24 @@ drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
    // uint32_t up_off = 0;
 
    // // Horizontal Clipping Rules
-   // if (x >= m_w){                 // Left Clipping  
+   // if (x >= KWIDTH){                 // Left Clipping  
    //    left_off = - x;
    //    if (left_off >= w) return;  // Nothing to draw, sprite is out screen (left or right)
    //    x = 0;
    //    w = w - left_off;
    // }
-   // else if ( x + w > m_w){        // Right Clipping
-   //    w = m_w - x;
+   // else if ( x + w > KWIDTH){        // Right Clipping
+   //    w = KWIDTH - x;
    // }
    // // Vertical Clipping Rules
-   // if (y >= m_h) {               // Up Clipping
+   // if (y >= KHEIGHT) {               // Up Clipping
    //    up_off = -y;
    //    if (up_off >= h) return;   // Nothig to draw
    //    y = 0;
    //    h = h - up_off;
    // }
-   // else if (y + h > m_h){        // Down Clipping
-   //    h = m_h - y;
+   // else if (y + h > KHEIGHT){        // Down Clipping
+   //    h = KHEIGHT - y;
    // }
 
    // Draw Sprite
@@ -175,7 +176,7 @@ drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
             screen++;
       }
       sprite += rn.w - spr.screen.w;
-      screen += m_w - spr.screen.w;
+      screen += KWIDTH - spr.screen.w;
    }
 }
 
@@ -216,18 +217,18 @@ void
 RenderSys::AlignedLineClipped(uint32_t xL, uint32_t xR, uint32_t y, 
                                  bool yaxis, uint32_t pixel    ) const
 {
-    uint32_t infinite = 4*m_w; // beyond infinite, all are considered negative values
-    uint32_t maxx = m_w;
-    uint32_t maxy = m_h;
+    uint32_t infinite = 4*KWIDTH; // beyond infinite, all are considered negative values
+    uint32_t maxx = KWIDTH;
+    uint32_t maxy = KHEIGHT;
     uint32_t stride = 1;       // stride in 1st axis is +1
     uint32_t* screen = nullptr;
 
     // If the first axis is Y instead of X, swithc axis values
     if (yaxis){
-        infinite = 4*m_h;
-        maxx = m_h;
-        maxy = m_w;
-        stride = m_w;
+        infinite = 4*KHEIGHT;
+        maxx = KHEIGHT;
+        maxy = KWIDTH;
+        stride = KWIDTH;
     }
 
     // Ensure that y coorditate is in screen
@@ -275,21 +276,21 @@ RenderSys::drawFilledBox(BoundingBox<uint32_t> box,
     };
     
     // Infinite values to be considered negatives
-    uint32_t xinf = 4*m_w;
-    uint32_t yinf = 4*m_h;
+    uint32_t xinf = 4*KWIDTH;
+    uint32_t yinf = 4*KHEIGHT;
 
     // Convert bounding Box to screen coordinates
     box.xL += x; box.xR += x;
     box.yU += y; box.yD += y;
 
     // Crop line to screen limits
-    crop(box.xL, m_w, xinf);
-    crop(box.xR, m_w, xinf);
-    crop(box.yU, m_h, yinf);
-    crop(box.yD, m_h, yinf);
+    crop(box.xL, KWIDTH, xinf);
+    crop(box.xR, KWIDTH, xinf);
+    crop(box.yU, KHEIGHT, yinf);
+    crop(box.yD, KHEIGHT, yinf);
 
-    if (box.xL == m_w || box.xR == 0 
-        || box.yU == m_h || box.yD == 0) return;
+    if (box.xL == KWIDTH || box.xR == 0 
+        || box.yU == KHEIGHT || box.yD == 0) return;
 
     renderFilledBox(getScreenXY(box.xL, box.yU), box, pixel);
 }
@@ -307,7 +308,7 @@ renderFilledBox(uint32_t* screen, const BoundingBox<uint32_t>& box,
         for (uint32_t i=0; i<width; ++i){
             screen[i] = pixel; 
         }
-        screen += m_w;
+        screen += KWIDTH;
     }
 }
 
