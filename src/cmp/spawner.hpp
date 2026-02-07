@@ -4,8 +4,6 @@
 #include <functional>
 #include "cmp/component.hpp"
 
-using namespace std::chrono_literals;
-
 struct SpawnerCmp: Component<SpawnerCmp>
 {
    explicit SpawnerCmp(uint32_t eid)
@@ -15,6 +13,6 @@ struct SpawnerCmp: Component<SpawnerCmp>
 
    std::function<void(uint32_t x, uint32_t y, int32_t vx, int32_t vy)> spawnMethod {};
    clk::time_point last_spawn_time = clk::now();
-   std::chrono::duration<double> spawn_interval = 5s; 
+   std::chrono::duration<double> spawn_interval = std::chrono::seconds(5); 
    std::size_t to_be_spawned = 3;
 };
