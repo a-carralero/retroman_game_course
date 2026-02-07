@@ -29,17 +29,7 @@ OBJS := $(patsubst $(SRC_DIR)%.cpp,$(BUILD_DIR)%.o,$(SRCS))
 OBJS := $(patsubst $(SRC_DIR)%.c,$(BUILD_DIR)%.o,$(OBJS))
 DEPS := $(patsubst %.o,%.d,$(OBJS))
 
-
-GREEN  := \033[0;32m
-BLUE   := \033[0;34m
-RESET  := \033[0m
-define print_green
-	@printf "$(GREEN)%s$(RESET)\n" "$(1)"
-endef
-define print_blue
-	@printf "$(BLUE)%s$(RESET)\n" "$(1)"
-endef
-
+include colors.mk
 
 $(APP) : $(OBJS)
 	$(call print_blue,Linking $(APP))
@@ -72,4 +62,11 @@ libs:
 libs-clean:
 	$(MAKE) -C $(LIB_DIR) clean
 
-.PHONY: info clean libs libs-clean
+help:
+	@echo "Opciones disponibles:"
+	@echo "make [RELEASE][SANITIZER]"
+	@echo "make clean"
+	@echo "make libs"
+	@echo "make libs-clean"
+	
+.PHONY: info clean libs libs-clean help

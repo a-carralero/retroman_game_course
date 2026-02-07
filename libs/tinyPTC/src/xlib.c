@@ -27,6 +27,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <X11/XKBlib.h> 
 
 #ifdef __PTC_XLIB__
 
@@ -45,6 +46,9 @@ int ptc_open(const char *title, int width, int height) {
   if (ptc_display == NULL) {
     return PTC_FAILURE;
   }
+   Bool supported;
+   XkbSetDetectableAutoRepeat(ptc_display, True, &supported);
+
   // Set PTC keypress and release
   ptc_onkeypress   = ptc_do_nothing;
   ptc_onkeyrelease = ptc_do_nothing;

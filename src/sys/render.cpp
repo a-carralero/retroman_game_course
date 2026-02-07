@@ -134,36 +134,6 @@ drawClippedSprite(const RenderCmp& rn, const PhysicsCmp& phy) const
       rn.h - spr.crop.yU - spr.crop.yD        
    };
 
-   // uint32_t x = static_cast<uint32_t>(std::round(phy.x));
-   // uint32_t y = static_cast<uint32_t>(std::round(phy.y));
-   // uint32_t w = rn.w;
-   // uint32_t h = rn.h;
-
-   // // Clipping
-   // uint32_t left_off = 0;
-   // uint32_t up_off = 0;
-
-   // // Horizontal Clipping Rules
-   // if (x >= KWIDTH){                 // Left Clipping  
-   //    left_off = - x;
-   //    if (left_off >= w) return;  // Nothing to draw, sprite is out screen (left or right)
-   //    x = 0;
-   //    w = w - left_off;
-   // }
-   // else if ( x + w > KWIDTH){        // Right Clipping
-   //    w = KWIDTH - x;
-   // }
-   // // Vertical Clipping Rules
-   // if (y >= KHEIGHT) {               // Up Clipping
-   //    up_off = -y;
-   //    if (up_off >= h) return;   // Nothig to draw
-   //    y = 0;
-   //    h = h - up_off;
-   // }
-   // else if (y + h > KHEIGHT){        // Down Clipping
-   //    h = KHEIGHT - y;
-   // }
-
    // Draw Sprite
    uint32_t* screen = getScreenXY(spr.screen.x, spr.screen.y);
    const uint32_t* sprite = rn.sprite.data() + static_cast<uint32_t>(spr.crop.yU*rn.w + spr.crop.xL);

@@ -3,8 +3,9 @@
 #include "cmp/physics.hpp"
 #include "man/entitymanager.hpp"
 extern "C"{ 
-   #include "tinyPTC/src/tinyptc.h"
+#include "tinyPTC/src/tinyptc.h"
 }
+
 
 void InputSys::keypress(KeySym k){
    keyboard.keyPressed(k);
